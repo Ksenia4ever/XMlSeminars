@@ -28,13 +28,26 @@
         /// </summary>
         private void InitializeComponent()
         {
+            _closeButton = new Button();
             SuspendLayout();
+            // 
+            // _closeButton
+            // 
+            _closeButton.Location = new Point(798, 556);
+            _closeButton.Name = "_closeButton";
+            _closeButton.Size = new Size(94, 29);
+            _closeButton.TabIndex = 0;
+            _closeButton.Text = "button1";
+            _closeButton.UseVisualStyleBackColor = true;
+            _closeButton.Click += OnClose;
             // 
             // MainForm
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
+            ClientSize = new Size(914, 600);
+            Controls.Add(_closeButton);
+            Margin = new Padding(3, 4, 3, 4);
             Name = "MainForm";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Seminars";
@@ -42,5 +55,7 @@
         }
 
         #endregion
+
+        private Button _closeButton;
     }
 }

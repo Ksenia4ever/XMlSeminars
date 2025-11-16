@@ -4,6 +4,7 @@ namespace Controllers
 {
     internal class LINQAnalyzer : IAnalyser
     {
+        public string FilePath { get; set; } = string.Empty;
         public List<Criteria>? InputCriteria { get; set; } = null;
 
         public List<Seminar> Analyze()
