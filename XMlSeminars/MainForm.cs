@@ -16,7 +16,7 @@ namespace XMlSeminars
             var seminars = gen.CreateSeminars();
 
             var factory = new AnalyzerFactory();
-            var analizer = factory.Create(AnalyzerType.SAX);
+            var analizer = factory.Create(AnalyzerType.LINQ);
             analizer.FilePath = "SeminarsSAX.xml";
 
             var serializer = (analizer as ISerializer);
