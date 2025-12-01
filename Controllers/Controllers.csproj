@@ -7,6 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="TransformSeminars.xslt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="TransformSeminars.xslt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\DataModel\DataModel.csproj" />
   </ItemGroup>
 

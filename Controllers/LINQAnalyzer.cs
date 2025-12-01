@@ -19,17 +19,20 @@ namespace Controllers
             new XElement(ISerializer.RootName,
                          seminars.Select(s =>
                              new XElement(nameof(Seminar),
+                                 // Seminar
                                  new XElement(nameof(Seminar.Topic), s.Topic),
                                  new XElement(nameof(Seminar.Cathedra), s.Cathedra),
                                  new XElement(nameof(Seminar.Date), s.Date?.ToString("o")),
                                  new XElement(nameof(Seminar.Description), s.Description),
 
+                                 // Faculty
                                  s.Faculty != null
                                      ? new XElement(nameof(Seminar.Faculty),
                                          new XElement(nameof(Faculty.Department), s.Faculty.Department),
                                          new XElement(nameof(Faculty.Branch), s.Faculty.Branch))
                                      : null,
 
+                                 // Header
                                  s.Header != null
                                      ? new XElement(nameof(Seminar.Header),
                                          new XElement(nameof(Person.Name), s.Header.Name),
@@ -68,75 +71,27 @@ namespace Controllers
             var doc = XDocument.Load(FilePath);
             var col = doc.Root!.Elements(nameof(Seminar));
 
+            // build XML LINQ request for getting required Seminar XML nodes
+            // (use InputCriteria to create XML LINQ)
             if (InputCriteria != null)
             {
                 foreach (var criteria in InputCriteria)
                 {
-                    switch (criteria.Attribute)
-                    {
-                        case DataModel.Attribute.Topic:
-                            col = col.Where(x => criteria.Pass((string?)x.Element(nameof(Seminar.Topic))));
-                            break;
-                        case DataModel.Attribute.FacultyDepartment:
-                            col = col.Where(x => criteria.Pass((string?)x.Element(nameof(Seminar.Faculty))?.Element(nameof(Faculty.Department))));
-                            break;
-                        case DataModel.Attribute.FacultyBranch:
-                            col = col.Where(x => criteria.Pass((string?)x.Element(nameof(Seminar.Faculty))?.Element(nameof(Faculty.Branch))));
-                            break;
-                        case DataModel.Attribute.Cathedra:
-                            col = col.Where(x => criteria.Pass((string?)x.Element(nameof(Seminar.Cathedra))));
-                            break;
-                        case DataModel.Attribute.Date:
-                            col = col.Where(x => criteria.Pass((DateTime?)x.Element(nameof(Seminar.Date))));
-                            break;
-                        case DataModel.Attribute.Description:
-                            col = col.Where(x => criteria.Pass((string?)x.Element(nameof(Seminar.Description))));
-                            break;
-                        case DataModel.Attribute.HeaderName:
-                            col = col.Where(x => criteria.Pass((string?)x.Element(nameof(Seminar.Header))?.Element(nameof(Person.Name))));
-                            break;
-                        case DataModel.Attribute.HeaderSurname:
-                            col = col.Where(x => criteria.Pass((string?)x.Element(nameof(Seminar.Header))?.Element(nameof(Person.Surname))));
-                            break;
-                    }
+                    col = criteria.AddWhere(col);
                 }
             }
 
+            // execute XML LINQ and convert the result to collection of Seminar objects
             var res = col.Select(LoadSeminar)
                          .ToList()
                          .AsEnumerable();
 
+            // now, sort the result of of Seminar objects according to requirements
             if (InputCriteria != null)
             {
                 foreach (var criteria in InputCriteria)
                 {
-                    switch (criteria.Attribute)
-                    {
-                        case DataModel.Attribute.Topic:
-                            res = criteria.OrderBy(res, s => s.Topic);
-                            break;
-                        case DataModel.Attribute.FacultyDepartment:
-                            res = criteria.OrderBy(res, s => s.Faculty?.Department);
-                            break;
-                        case DataModel.Attribute.FacultyBranch:
-                            res = criteria.OrderBy(res, s => s.Faculty?.Branch);
-                            break;
-                        case DataModel.Attribute.Cathedra:
-                            res = criteria.OrderBy(res, s => s.Cathedra);
-                            break;
-                        case DataModel.Attribute.Date:
-                            res = criteria.OrderBy(res, s => s.Date);
-                            break;
-                        case DataModel.Attribute.Description:
-                            res = criteria.OrderBy(res, s => s.Description);
-                            break;
-                        case DataModel.Attribute.HeaderName:
-                            res = criteria.OrderBy(res, s => s.Header?.Name);
-                            break;
-                        case DataModel.Attribute.HeaderSurname:
-                            res = criteria.OrderBy(res, s => s.Header?.Surname);
-                            break;
-                    }
+                    res = criteria.AddOrderBy(res);
                 }
             }
 

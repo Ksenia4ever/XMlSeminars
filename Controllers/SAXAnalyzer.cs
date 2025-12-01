@@ -30,11 +30,13 @@ namespace Controllers
                 {
                     writer.WriteStartElement(nameof(Seminar));
 
+                    // Seminar
                     WriteValue(writer, nameof(Seminar.Topic), seminar.Topic);
                     WriteValue(writer, nameof(Seminar.Description), seminar.Description);
                     WriteValue(writer, nameof(Seminar.Cathedra), seminar.Cathedra);
                     WriteValue(writer, nameof(Seminar.Date), seminar.Date?.ToString("o"));
 
+                    // Faculty
                     if (seminar.Faculty != null)
                     {
                         writer.WriteStartElement(nameof(Seminar.Faculty));
@@ -43,6 +45,7 @@ namespace Controllers
                         writer.WriteEndElement();
                     }
 
+                    // Header
                     if (seminar.Header != null)
                     {
                         writer.WriteStartElement(nameof(Seminar.Header));
@@ -100,6 +103,7 @@ namespace Controllers
                     {
                         string value = reader.Value;
 
+                        // Faculty
                         if (faculty != null)
                         {
                             switch (currentElement)
@@ -108,6 +112,7 @@ namespace Controllers
                                 case nameof(Faculty.Branch): faculty.Branch = value; break;
                             }
                         }
+                        // Header
                         else if (header != null)
                         {
                             switch (currentElement)
@@ -116,13 +121,14 @@ namespace Controllers
                                 case nameof(Person.Surname): header.Surname = value; break;
                             }
                         }
+                        // Seminar
                         else if (seminar != null)
                         {
                             switch (currentElement)
                             {
                                 case nameof(Seminar.Topic): seminar.Topic = value; break;
                                 case nameof(Seminar.Cathedra): seminar.Cathedra = value; break;
-                                case nameof(Seminar.Date): seminar.Date = DateTime.Parse(value); break;
+                                case nameof(Seminar.Date): if (DateTime.TryParse(value, out var parsedDate)) { seminar.Date = parsedDate; }; break;
                                 case nameof(Seminar.Description): seminar.Description = value; break;
                             }
                         }
@@ -165,73 +171,25 @@ namespace Controllers
 
         public List<Seminar> Analyze()
         {
+            // load whole XML to the memory as collection of Seminar objects
             var res = Load().AsEnumerable();
 
             if (InputCriteria != null)
             {
+                // build Enumerable LINQ request to select the required Seminars only
                 foreach (var criteria in InputCriteria)
                 {
-                    switch (criteria.Attribute)
-                    {
-                        case DataModel.Attribute.Topic:
-                            res = res.Where(s => criteria.Pass(s.Topic));
-                            break;
-                        case DataModel.Attribute.FacultyDepartment:
-                            res = res.Where(s => criteria.Pass(s.Faculty?.Department));
-                            break;
-                        case DataModel.Attribute.FacultyBranch:
-                            res = res.Where(s => criteria.Pass(s.Faculty?.Branch));
-                            break;
-                        case DataModel.Attribute.Cathedra:
-                            res = res.Where(s => criteria.Pass(s.Cathedra));
-                            break;
-                        case DataModel.Attribute.Date:
-                            res = res.Where(s => criteria.Pass(s.Date));
-                            break;
-                        case DataModel.Attribute.Description:
-                            res = res.Where(s => criteria.Pass(s.Description));
-                            break;
-                        case DataModel.Attribute.HeaderName:
-                            res = res.Where(s => criteria.Pass(s.Header?.Name));
-                            break;
-                        case DataModel.Attribute.HeaderSurname:
-                            res = res.Where(s => criteria.Pass(s.Header?.Surname));
-                            break;
-                    }
+                    res = criteria.AddWhere(res);
                 }
 
+                // now update LINQ with sorting rules to get the result sorted as required
                 foreach (var criteria in InputCriteria)
                 {
-                    switch (criteria.Attribute)
-                    {
-                        case DataModel.Attribute.Topic:
-                            res = criteria.OrderBy(res, s => s.Topic);
-                            break;
-                        case DataModel.Attribute.FacultyDepartment:
-                            res = criteria.OrderBy(res, s => s.Faculty?.Department);
-                            break;
-                        case DataModel.Attribute.FacultyBranch:
-                            res = criteria.OrderBy(res, s => s.Faculty?.Branch);
-                            break;
-                        case DataModel.Attribute.Cathedra:
-                            res = criteria.OrderBy(res, s => s.Cathedra);
-                            break;
-                        case DataModel.Attribute.Date:
-                            res = criteria.OrderBy(res, s => s.Date);
-                            break;
-                        case DataModel.Attribute.Description:
-                            res = criteria.OrderBy(res, s => s.Description);
-                            break;
-                        case DataModel.Attribute.HeaderName:
-                            res = criteria.OrderBy(res, s => s.Header?.Name);
-                            break;
-                        case DataModel.Attribute.HeaderSurname:
-                            res = criteria.OrderBy(res, s => s.Header?.Surname);
-                            break;
-                    }
+                    res = criteria.AddOrderBy(res);
                 }
             }
 
+            // execute Enumerable LINQ and get final result as List of Seminars
             return res.ToList();
         }
 

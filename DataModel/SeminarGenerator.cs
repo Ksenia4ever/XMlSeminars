@@ -33,6 +33,7 @@
             new Person { Name = "Іван", Surname = "Петренко" },
             new Person { Name = "Олена", Surname = "Коваль" },
             new Person { Name = "Дмитро", Surname = "Шелест" },
+            new Person { Name = "Василь", Surname = "Шелест" },
             new Person { Name = "Світлана", Surname = "Гриценко" },
             new Person { Name = "Андрій", Surname = "Марченко" }
             };
@@ -71,7 +72,7 @@
 
             var startDate = new DateTime(DateTime.Now.Year, 9, 1);
 
-            for (var i = 0; i < 100; i++)
+            for (var i = 0; i < 300; i++)
             {
                 var topicIndex = random.Next(topics.Length);
 
@@ -80,7 +81,8 @@
 
                 var seminar = new Seminar
                 {
-                    Topic = topics[topicIndex] + (topicCount > 0 ? $". Частина {topicCount + 1}" : string.Empty),
+                    //Topic = topics[topicIndex] + (topicCount > 0 ? $". Частина {topicCount + 1}" : string.Empty),
+                    Topic = topics[topicIndex],
                     Description = descriptions[topicIndex],
                     Cathedra = cathedras[random.Next(cathedras.Length)],
                     Faculty = faculties[random.Next(faculties.Length)],
