@@ -42,7 +42,7 @@
                         <th>Header</th>
                     </tr>
 
-                    <!-- Перебір семінарів -->
+                    <!-- for all seminars -->
                     <xsl:for-each select="Seminars/Seminar">
                         <tr>
                             <td>
